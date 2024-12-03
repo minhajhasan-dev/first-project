@@ -1,17 +1,29 @@
 import { Request, Response } from 'express';
 import { StudentServices } from './student.service';
+import { studentSchema } from './student.validation';
 
 const createStudent = async (req: Request, res: Response) => {
   try {
+    // creating a schema validation using zod
+
     const { student: studentData } = req.body;
-    const result = await StudentServices.createStudentIntoDB(studentData);
+
+    // data validation using zod
+
+    const zodPersedData = studentSchema.parse(studentData);
+
+    const result = await StudentServices.createStudentIntoDB(zodPersedData);
     res.status(200).json({
       success: true,
       message: 'Student created successfully',
       data: result,
     });
   } catch (error) {
-    console.log('Error in createStudent controller', error);
+    res.status(500).json({
+      success: false,
+      message: 'Something went wrong',
+      error: error,
+    });
   }
 };
 
